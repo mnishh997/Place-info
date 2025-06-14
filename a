@@ -1,0 +1,248 @@
+Collecting workspace informationI'll walk you through the complete data flow when a user signs up in your WeatherWise application, from frontend to backend and database storage.
+
+## 1. Frontend Form Submission Flow
+
+### Step 1: User Input & Validation
+When a user fills out the signup form in `SignUpCard`:
+
+1. **Form Schema Validation** (lines 18-32):
+```tsx
+const signUpSchema = z.object({
+  name: z.string().regex(/^[a-zA-Z ]+$/, {
+    message: "Name must contain only letters and spaces"
+  }).trim(),
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters" }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+```
+
+2. **Form Submission** (lines 50-60):
+```tsx
+const onSubmit = (data: SignUpFormData) => {
+  mutate(data, {
+    onSuccess: () => {
+      toast.success("Successfully Registered");
+      navigate("/sign-in");
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+};
+```
+
+### Step 2: API Call via React Query
+The `mutate` function calls `useRegister`:
+
+```typescript
+export function useRegister() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (data: RegisterPayload) => {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        credentials: "include"
+      });
+      
+      if (response.status == 201) {
+        return response.json();
+      } else if (response.status === 302) {
+        throw new Error("User Already Registered")
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Register failed");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+
+  return mutation;
+}
+```
+
+## 2. Backend Request Handling Flow
+
+### Step 3: Express Server Receives Request
+The request hits index.js which sets up:
+
+1. **CORS Configuration** (lines 58-63):
+```javascript
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true, 
+  })
+);
+```
+
+2. **Middleware Setup**:
+```javascript
+app.use(express.json()); // Parse JSON bodies
+app.use(cookieParser()); // Parse cookies
+app.use("/api/auth", auth); // Route to auth handlers
+```
+
+### Step 4: Auth Route Handler
+The request is routed to auth.js `/register` endpoint (lines 46-72):
+
+```javascript
+.post("/register", async (req, res) => {
+  const body = req.body;
+  const { name, email, password } = body;
+  const hashPw = bcrypt.hashSync(password, 10); // Hash password with salt rounds
+  
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(302).send({ message: "User Already registered" });
+    }
+    
+    // Create new user
+    const registeredUser = await User.insertOne({
+      name,
+      email,
+      password: hashPw,
+    });
+    
+    if (!registeredUser) {
+      return res.status(500).send({ message: "Failed to register user" });
+    }
+    
+    res.status(201).json({
+      message: "User registered successfully",
+      data: {
+        name: registeredUser.name,
+        email: registeredUser.email,
+        id: registeredUser._id,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Unable Registered" });
+  }
+})
+```
+
+## 3. Database Operations Flow
+
+### Step 5: MongoDB Connection
+The database connection is established in index.js:
+
+```javascript
+import mongoose from "mongoose";
+const MONGODB_URI = process.env.MONGODB_URI;
+mongoose.connect(MONGODB_URI);
+```
+
+### Step 6: User Model Schema
+The data structure is defined in User.js:
+
+```javascript
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String, 
+    required: true, 
+    unique: false, 
+    trim: true, 
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true, // Ensures no duplicate emails
+    trim: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+});
+
+const User = mongoose.model("User", userSchema);
+```
+
+### Step 7: Database Operations
+1. **Check for Existing User**:
+```javascript
+const existingUser = await User.findOne({ email });
+```
+
+2. **Password Hashing**:
+```javascript
+const hashPw = bcrypt.hashSync(password, 10);
+```
+
+3. **Save New User**:
+```javascript
+const registeredUser = await User.insertOne({
+  name,
+  email,
+  password: hashPw,
+});
+```
+
+## 4. Complete Data Flow Diagram
+
+```
+Frontend (React)
+    ↓
+[1] User fills form → Zod validation
+    ↓
+[2] onSubmit calls useRegister.mutate()
+    ↓
+[3] HTTP POST to /api/auth/register
+    ↓
+Backend (Express)
+    ↓
+[4] CORS + JSON parsing middleware
+    ↓
+[5] Route to auth.js /register handler
+    ↓
+[6] Extract { name, email, password }
+    ↓
+[7] Hash password with bcrypt
+    ↓
+[8] Check if email exists in MongoDB
+    ↓
+[9] If new user: User.insertOne()
+    ↓
+Database (MongoDB)
+    ↓
+[10] Document saved with schema validation
+    ↓
+[11] Return success/error to backend
+    ↓
+[12] Backend sends JSON response
+    ↓
+[13] Frontend receives response
+    ↓
+[14] Show toast notification + navigate to sign-in
+```
+
+## 5. Security Measures
+
+1. **Password Hashing**: Uses bcrypt with 10 salt rounds
+2. **Email Uniqueness**: MongoDB schema prevents duplicate emails
+3. **Input Validation**: Zod schema validates frontend inputs
+4. **CORS Protection**: Only allows requests from localhost:5173
+5. **HTTP-Only Cookies**: For JWT tokens (in login flow)
+
+## 6. Error Handling
+
+- **Frontend**: React Query handles network errors and shows toast messages
+- **Backend**: Try-catch blocks with appropriate HTTP status codes
+- **Database**: Mongoose validation and unique constraints
+
+This flow ensures secure user registration with proper validation, password hashing, and error handling throughout the entire stack.
+
+Similar code found with 1 license type
