@@ -9,6 +9,7 @@ import { useGetUser } from "@/features/auth/api/use-get-user";
 import { cn } from "@/lib/utils";
 import { useLogout } from "@/features/auth/api/use-logout";
 import { toast, Toaster } from "sonner";
+import { Link, useNavigate } from "react-router";
 
 type UserSchema = {
   status: "Loading" | "Authenticated" | "Unauthenticated";
@@ -67,6 +68,11 @@ export const UserAvatar = ({ className }: UserAvatarProps) => {
               <div className="text-sm text-muted-foreground">{name}</div>
               <div className="text-sm text-muted-foreground">{email}</div>
             </div>
+          </div>
+          <div className="text-sm text-center pb-2 text-muted-foreground">
+            <Link to={"/update-user"} className="text-blue-600">
+              Update Profile
+            </Link>
           </div>
           <Button
             variant="destructive"

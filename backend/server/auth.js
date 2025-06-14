@@ -38,7 +38,7 @@ app
             token: "Bearer " + token,
           });
         }
-      } catch (err) {}
+      } catch (err) { }
     }
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
@@ -75,20 +75,20 @@ app
   })
   .post("/register", async (req, res) => {
     const body = req.body;
-    const { 
-      name, 
-      email, 
-      password, 
-      location, 
-      showDefaultLocation, 
-      dateOfBirth, 
-      foodPreference, 
-      foodPreferenceDescription, 
-      bio 
+    const {
+      name,
+      email,
+      password,
+      location,
+      showDefaultLocation,
+      dateOfBirth,
+      foodPreference,
+      foodPreferenceDescription,
+      bio
     } = body;
-    
+
     const hashPw = bcrypt.hashSync(password, 10);
-    
+
     try {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -109,25 +109,25 @@ app
       if (dateOfBirth) {
         userData.dateOfBirth = new Date(dateOfBirth);
       }
-      
+
       if (foodPreference) {
         userData.foodPreference = foodPreference;
       }
-      
+
       if (foodPreferenceDescription) {
         userData.foodPreferenceDescription = foodPreferenceDescription;
       }
-      
+
       if (bio) {
         userData.bio = bio;
       }
 
       const registeredUser = await User.create(userData);
-      
+
       if (!registeredUser) {
         return res.status(500).send({ message: "Failed to register user" });
       }
-      
+
       res.status(201).json({
         message: "User registered successfully",
         data: {
@@ -192,16 +192,16 @@ app
     async (req, res) => {
       try {
         const userId = req.user._id;
-        const { 
-          name, 
-          email, 
-          location, 
-          showDefaultLocation, 
-          dateOfBirth, 
-          foodPreference, 
-          foodPreferenceDescription, 
+        const {
+          name,
+          email,
+          location,
+          showDefaultLocation,
+          dateOfBirth,
+          foodPreference,
+          foodPreferenceDescription,
           bio,
-          newPassword 
+          newPassword
         } = req.body;
 
         // Build update object
@@ -217,15 +217,15 @@ app
         if (dateOfBirth) {
           updateData.dateOfBirth = new Date(dateOfBirth);
         }
-        
+
         if (foodPreference) {
           updateData.foodPreference = foodPreference;
         }
-        
+
         if (foodPreferenceDescription) {
           updateData.foodPreferenceDescription = foodPreferenceDescription;
         }
-        
+
         if (bio) {
           updateData.bio = bio;
         }
@@ -242,9 +242,9 @@ app
         );
 
         if (!updatedUser) {
-          return res.status(404).send({ 
+          return res.status(404).send({
             success: false,
-            message: "User not found" 
+            message: "User not found"
           });
         }
 
@@ -265,9 +265,9 @@ app
         });
       } catch (error) {
         console.error("Update error:", error);
-        res.status(500).json({ 
+        res.status(500).json({
           success: false,
-          message: "Unable to update user" 
+          message: "Unable to update user"
         });
       }
     }
