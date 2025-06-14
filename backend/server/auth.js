@@ -175,9 +175,101 @@ app
         data: {
           id: req.user._id,
           email: req.user.email,
-          name: req.user.name
+          name: req.user.name,
+          location: req.user.location,
+          showDefaultLocation: req.user.showDefaultLocation,
+          dateOfBirth: req.user.dateOfBirth,
+          foodPreference: req.user.foodPreference,
+          foodPreferenceDescription: req.user.foodPreferenceDescription,
+          bio: req.user.bio,
         },
       });
+    }
+  )
+  .put(
+    "/user",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+      try {
+        const userId = req.user._id;
+        const { 
+          name, 
+          email, 
+          location, 
+          showDefaultLocation, 
+          dateOfBirth, 
+          foodPreference, 
+          foodPreferenceDescription, 
+          bio,
+          newPassword 
+        } = req.body;
+
+        // Build update object
+        const updateData = {
+          name,
+          email,
+          location: location || "",
+          showDefaultLocation: showDefaultLocation !== undefined ? showDefaultLocation : true,
+          updatedAt: new Date(),
+        };
+
+        // Add optional fields only if they are provided
+        if (dateOfBirth) {
+          updateData.dateOfBirth = new Date(dateOfBirth);
+        }
+        
+        if (foodPreference) {
+          updateData.foodPreference = foodPreference;
+        }
+        
+        if (foodPreferenceDescription) {
+          updateData.foodPreferenceDescription = foodPreferenceDescription;
+        }
+        
+        if (bio) {
+          updateData.bio = bio;
+        }
+
+        // Handle password update if provided
+        if (newPassword) {
+          updateData.password = bcrypt.hashSync(newPassword, 10);
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+          userId,
+          updateData,
+          { new: true, runValidators: true }
+        );
+
+        if (!updatedUser) {
+          return res.status(404).send({ 
+            success: false,
+            message: "User not found" 
+          });
+        }
+
+        res.status(200).json({
+          success: true,
+          message: "User updated successfully",
+          data: {
+            id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            location: updatedUser.location,
+            showDefaultLocation: updatedUser.showDefaultLocation,
+            dateOfBirth: updatedUser.dateOfBirth,
+            foodPreference: updatedUser.foodPreference,
+            foodPreferenceDescription: updatedUser.foodPreferenceDescription,
+            bio: updatedUser.bio,
+          },
+        });
+      } catch (error) {
+        console.error("Update error:", error);
+        res.status(500).json({ 
+          success: false,
+          message: "Unable to update user" 
+        });
+      }
     }
   );
 
