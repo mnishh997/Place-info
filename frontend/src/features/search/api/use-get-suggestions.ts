@@ -1,4 +1,4 @@
-import { GEMINI_API_KEY } from "@/constants";
+import { GEMINI_API_KEY } from "@/constants.ts";
 import { useQuery } from "@tanstack/react-query";
 
 type useGetSuggestionsProps = {

@@ -1,4 +1,4 @@
-import { GEOCODING_API_KEY } from "@/constants";
+import { GOOGLE_MAPS_API_KEY } from "@/constants.ts";
 import { useQuery } from "@tanstack/react-query";
 
 type useGetGeocodeProps = {
@@ -15,7 +15,7 @@ const useGetGeocode = ({ locationText, enabled }: useGetGeocodeProps) => {
         }
         const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
           locationText
-        )}&key=${GEOCODING_API_KEY}`;
+        )}&key=${GOOGLE_MAPS_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
         if (data.results?.length > 0) {
