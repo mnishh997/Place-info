@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type KeyboardEventHandler } from "react";
 import CurrentConditions from "../components/CurrentConditions.js";
 import Forecast from "../components/Forecast.js";
 import Suggestions from "../components/Suggestions.js";
+import HourlyForecast from "../features/auth/components/hourly-forecast.js"; // Updated import path
 import "../App.css";
 import { useGetGeocode } from "../features/search/api/use-get-location.js";
 import { useGetCurrentConditions } from "../features/search/api/use-get-current-conditions.js";
@@ -104,7 +105,9 @@ export default function App() {
           {gotForecast && (
               <Forecast forecastHours={forecast.forecastHours} />
           )}
-
+          {gotForecast && (
+              <HourlyForecast data={formatForecastData(forecast)} />
+          )}
           {gotSuggestions && (
               <Suggestions text={suggestions?.join("\n") ?? ""} />
           )}
@@ -140,4 +143,17 @@ const getSummary = (forecast: any) => {
   });
 
   return hourlySummaries;
+};
+
+
+const formatForecastData = (forecast: any) => {
+  if (!forecast?.forecastHours) return [];
+  
+  return forecast.forecastHours.map((hour: any) => ({
+    time: `${hour.displayDateTime?.hours ?? "??"}:00`,
+    icon: hour.weatherCondition?.iconUrl || "/default-weather-icon.png",
+    temp: hour.temperature?.degrees ?? "N/A",
+    rain: hour.precipitationProbability ?? 0,
+    condition: hour.weatherCondition?.description?.text || "Clear" // Add weather condition
+  }));
 };
