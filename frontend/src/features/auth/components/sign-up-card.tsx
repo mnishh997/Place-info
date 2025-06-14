@@ -2,9 +2,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import { FormFieldWrapper } from "@/components/ui/form-field-wrapper";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { toast, Toaster } from "sonner";
 import { useRegister } from "../api/use-register";
 import { Link, useNavigate } from "react-router";
@@ -21,7 +31,8 @@ const signUpSchema = z.object({
   confirmPassword: z
     .string()
     .min(6, { message: "Password must be at least 6 characters" }),
-  location: z.string().optional(),
+  location: z.string(),
+  showDefaultLocation: z.boolean(),
   dateOfBirth: z.string().optional(),
   foodPreference: z.enum(["Veg", "Non-Veg", "Vegan", "Other"]).optional(),
   foodPreferenceDescription: z.string().optional(),
@@ -33,13 +44,6 @@ const signUpSchema = z.object({
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
-const foodPreferenceOptions = [
-  { value: "Veg", label: "Vegetarian" },
-  { value: "Non-Veg", label: "Non-Vegetarian" },
-  { value: "Vegan", label: "Vegan" },
-  { value: "Other", label: "Other" },
-];
-
 export function SignUpCard() {
   const navigate = useNavigate();
   const { mutate } = useRegister();  const form = useForm<SignUpFormData>({
@@ -50,22 +54,17 @@ export function SignUpCard() {
       password: "",
       confirmPassword: "",
       location: "",
+      showDefaultLocation: true,
       dateOfBirth: "",
       foodPreference: undefined,
       foodPreferenceDescription: "",
       bio: "",
     },
   });
+
   const onSubmit = (data: SignUpFormData) => {
-    console.log("Sign Up Data:", data);
-    
-    // Transform data for backend
-    const submitData = {
-      ...data,
-      dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
-    };
-    
-    mutate(submitData, {
+    console.log("Sign In Data:", data);
+    mutate(data, {
       onSuccess: () => {
         toast.success("Successfully Registered");
         navigate("/sign-in");
@@ -77,130 +76,247 @@ export function SignUpCard() {
   };
 
   return (
-    <Card className="w-full mx-auto rounded-sm bg-blue-100 overflow-hidden h-screen">
+    <Card className="w-full mx-auto rounded-sm overflow-hidden h-screen ">
       <Toaster />
       <div className="flex h-full">
         {/* Left side - Image */}
         <div className="hidden md:flex md:w-1/2 bg-blue-100 items-center justify-center p-8">
           <div className="text-center">
-            <img 
-              src="public/project-logo.svg" 
-              alt="Project Logo" 
+            <img
+              src="public/project-logo.svg"
+              alt="Project Logo"
               className="w-full max-w-sm rounded-lg mb-4"
             />
             <h3 className="text-2xl font-bold mb-2">Welcome to WeatherWise</h3>
             <p className="text-lg opacity-90">Your personal weather based companion</p>
           </div>
         </div>
-        
+
         {/* Right side - Form */}
-        <div className="w-full md:w-1/2 flex flex-col h-full">
+        <div className="w-full md:w-1/2 flex flex-col h-full bg-blue-50">
           <CardHeader className="pb-4 flex-shrink-0">
             <CardTitle className="text-center text-2xl">Sign Up</CardTitle>
           </CardHeader>
-          
+
           {/* Scrollable form container */}
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="h-full">                <CardContent className="space-y-4 px-8 pb-8">
-                  {/* Required Fields */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-700">Required Information</h3>
-                    
-                    <FormFieldWrapper
-                      control={form.control}
-                      name="name"
-                      label="Name"
-                      placeholder="Enter your name"
-                      required
-                    />
-                    
-                    <FormFieldWrapper
-                      control={form.control}
-                      name="email"
-                      label="Email"
-                      type="email"
-                      placeholder="you@example.com"
-                      required
-                    />
-                    
-                    <FormFieldWrapper
-                      control={form.control}
-                      name="password"
-                      label="Password"
-                      type="password"
-                      placeholder="••••••••"
-                      required
-                    />
-                    
-                    <FormFieldWrapper
-                      control={form.control}
-                      name="confirmPassword"
-                      label="Confirm Password"
-                      type="password"
-                      placeholder="••••••••"
-                      required
-                    />
-                  </div>
-
-                  {/* Optional Fields */}
-                  <div className="space-y-4 pt-4 border-t border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-700">Additional Information (Optional)</h3>
-                    
-                    <FormFieldWrapper
-                      control={form.control}
-                      name="location"
-                      label="Location"
-                      placeholder="City, Country"
-                    />
-                    
-                    <FormFieldWrapper
-                      control={form.control}
-                      name="dateOfBirth"
-                      label="Date of Birth"
-                      type="date"
-                    />
-                    
-                    <FormFieldWrapper
-                      control={form.control}
-                      name="foodPreference"
-                      label="Food Preference"
-                      type="select"
-                      placeholder="Select your food preference"
-                      options={foodPreferenceOptions}
-                    />
-                    
-                    <FormFieldWrapper
-                      control={form.control}
-                      name="foodPreferenceDescription"
-                      label="Food Preference Description"
-                      placeholder="Describe your dietary restrictions or preferences"
-                    />
-                    
-                    <FormFieldWrapper
-                      control={form.control}
-                      name="bio"
-                      label="Bio"
-                      type="textarea"
-                      placeholder="Tell us a bit about yourself"
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full mt-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="h-full">
+                <CardContent className="space-y-4 px-8 pb-8">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="name" className="font-semibold">
+                          Name<span className="text-red-500">*</span>
+                        </Label>
+                        <FormControl>
+                          <Input
+                            id="name"
+                            placeholder="Enter your name"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="email" className="font-semibold">
+                          Email<span className="text-red-500">*</span>
+                        </Label>
+                        <FormControl>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="you@example.com"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="password" className="font-semibold">
+                          Password<span className="text-red-500">*</span>
+                        </Label>
+                        <FormControl>
+                          <Input
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="confirmPassword" className="font-semibold">
+                          Confirm Password<span className="text-red-500">*</span>
+                        </Label>
+                        <FormControl>
+                          <Input
+                            id="confirmPassword"
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="location" className="font-semibold">
+                          Location<span className="text-red-500">*</span>
+                        </Label>
+                        <FormControl>
+                          <Input
+                            id="location"
+                            placeholder="Enter your location"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="showDefaultLocation"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <Label className="font-semibold">
+                            Show default location
+                          </Label>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="dateOfBirth"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="dateOfBirth" className="font-semibold">
+                          Date of Birth
+                        </Label>
+                        <FormControl>
+                          <Input
+                            id="dateOfBirth"
+                            type="date"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="foodPreference"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="foodPreference" className="font-semibold">
+                          Food Preference
+                        </Label>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select food preference" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Veg">Vegetarian</SelectItem>
+                            <SelectItem value="Non-Veg">Non-Vegetarian</SelectItem>
+                            <SelectItem value="Vegan">Vegan</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="foodPreferenceDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="foodPreferenceDescription" className="font-semibold">
+                          Food Preference Description (Optional)
+                        </Label>
+                        <FormControl>
+                          <Textarea
+                            id="foodPreferenceDescription"
+                            placeholder="Describe your food preferences..."
+                            className="resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bio"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="bio" className="font-semibold">
+                          Bio
+                        </Label>
+                        <FormControl>
+                          <Textarea
+                            id="bio"
+                            placeholder="Tell us about yourself..."
+                            className="resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full">
                     Sign Up
                   </Button>
-                  
-                  <div className="w-full border-t-4 border-border border-dotted" />
-                  
-                  <div className="text-sm text-center">
-                    {"Already own an Account? "}
-                    <Link to={"/sign-in"} className="text-blue-600">
-                      Sign In
-                    </Link>
-                  </div>
+
                 </CardContent>
               </form>
             </Form>
+          </div>
+          <div className="w-full border-t-4 border-border border-dotted" />
+          <div className="text-sm text-center">
+            {"Already own an Account? "}
+            <Link to={"/sign-in"} className="text-blue-600">
+              Sign In
+            </Link>
           </div>
         </div>
       </div>

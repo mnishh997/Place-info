@@ -75,31 +75,72 @@ app
   })
   .post("/register", async (req, res) => {
     const body = req.body;
-    const { name, email, password } = body;
+    const { 
+      name, 
+      email, 
+      password, 
+      location, 
+      showDefaultLocation, 
+      dateOfBirth, 
+      foodPreference, 
+      foodPreferenceDescription, 
+      bio 
+    } = body;
+    
     const hashPw = bcrypt.hashSync(password, 10);
+    
     try {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(302).send({ message: "User Already registered" });
       }
-      const registeredUser = await User.insertOne({
+
+      // Prepare user data object
+      const userData = {
         name,
         email,
         password: hashPw,
-      });
+        location: location || "",
+        showDefaultLocation: showDefaultLocation !== undefined ? showDefaultLocation : true,
+        updatedAt: new Date(),
+      };
+
+      // Add optional fields only if they are provided
+      if (dateOfBirth) {
+        userData.dateOfBirth = new Date(dateOfBirth);
+      }
+      
+      if (foodPreference) {
+        userData.foodPreference = foodPreference;
+      }
+      
+      if (foodPreferenceDescription) {
+        userData.foodPreferenceDescription = foodPreferenceDescription;
+      }
+      
+      if (bio) {
+        userData.bio = bio;
+      }
+
+      const registeredUser = await User.create(userData);
+      
       if (!registeredUser) {
         return res.status(500).send({ message: "Failed to register user" });
       }
+      
       res.status(201).json({
         message: "User registered successfully",
         data: {
           name: registeredUser.name,
           email: registeredUser.email,
           id: registeredUser._id,
+          location: registeredUser.location,
+          showDefaultLocation: registeredUser.showDefaultLocation,
         },
       });
     } catch (error) {
-      res.status(500).json({ message: "Unable Registered" });
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Unable to register user" });
     }
   })
   .post(

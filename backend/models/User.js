@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   },
   location: {
     type: String,
-    required: false,
+    required: true,
     trim: true,
   },
   showDefaultLocation: {
