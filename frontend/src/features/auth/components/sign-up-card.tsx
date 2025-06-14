@@ -94,7 +94,7 @@ export function SignUpCard() {
 
         {/* Right side - Form */}
         <div className="w-full md:w-1/2 flex flex-col h-full bg-blue-50">
-          <CardHeader className="pb-4 flex-shrink-0">
+          <CardHeader className="pb-4 pt-2 flex-shrink-0">
             <CardTitle className="text-center text-2xl">Sign Up</CardTitle>
           </CardHeader>
 
