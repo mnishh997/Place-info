@@ -54,83 +54,112 @@ export function SignInCard() {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto mt-10 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <Toaster />
-      <div className="flex min-h-[500px]">
-        {/* Left side - Image */}
-        <div className="flex-1 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 relative overflow-hidden">
-          <div className="absolute inset-0 bg-black/10" />
-          <div className="relative z-10 flex items-center justify-center h-full p-8">
-            <img 
-              src="/path-to-your-illustration.svg" 
-              alt="Sign up illustration" 
-              className="max-w-full max-h-full object-contain"
-            />
-            {/* If you don't have an image, you can use this placeholder */}
-            <div className="text-white text-center">
-              <h2 className="text-3xl font-bold mb-4">Welcome Back!</h2>
-              <p className="text-lg opacity-90">Sign in to access your weather dashboard</p>
+      <Card className="w-full max-w-6xl mx-auto overflow-hidden shadow-2xl">
+        <div className="flex min-h-[600px]">
+          {/* Left side - Branding */}
+          <div className="flex-1 bg-gradient-to-br from-blue-50 to-purple-50 flex flex-col items-center justify-center p-12 relative">
+            {/* WeatherWise Logo */}
+            <div className="mb-8">
+              <div className="relative w-32 h-16">
+                {/* Colorful overlapping circles representing the logo */}
+                <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-red-400 to-pink-500 rounded-full opacity-90"></div>
+                <div className="absolute top-0 left-8 w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full opacity-90"></div>
+                <div className="absolute top-4 left-4 w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full opacity-90"></div>
+                <div className="absolute top-4 left-12 w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full opacity-90"></div>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-gray-800 mb-4">
+                Welcome to WeatherWise
+              </h1>
+              <p className="text-lg text-gray-600 max-w-md">
+                Your personal weather based companion
+              </p>
             </div>
           </div>
-        </div>
-        
-        {/* Right side - Form */}
-        <div className="flex-1 flex flex-col">
-          <CardHeader className="pb-6">
-            <CardTitle className="text-center text-2xl">Sign In</CardTitle>
-          </CardHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1">
-              <CardContent className="space-y-4 px-8">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Label htmlFor="email">Email</Label>
-                      <FormControl>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="you@example.com"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Label htmlFor="password">Password</Label>
-                      <FormControl>
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="••••••••"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full">
-                  Sign In
-                </Button>
-                <div className="w-full border-t-4 border-border border-dotted" />
-                <div className="text-sm text-center">
-                  {"New user? "}
-                  <Link to={"/sign-up"} className="text-blue-600">Sign Up</Link>
+          
+          {/* Right side - Sign In Form */}
+          <div className="flex-1 flex flex-col bg-white">
+            <CardHeader className="pb-6 pt-12">
+              <CardTitle className="text-center text-3xl font-bold text-gray-800">
+                Sign In
+              </CardTitle>
+            </CardHeader>
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col">
+                <CardContent className="space-y-6 px-12 flex-1">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                          Email <span className="text-red-500">*</span>
+                        </Label>
+                        <FormControl>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="a@a.com"
+                            className="h-12 px-4 bg-yellow-50 border-yellow-200 focus:border-yellow-400 focus:ring-yellow-400"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                          Password <span className="text-red-500">*</span>
+                        </Label>
+                        <FormControl>
+                          <Input
+                            id="password"
+                            type="password"
+                            placeholder="••••••"
+                            className="h-12 px-4 bg-yellow-50 border-yellow-200 focus:border-yellow-400 focus:ring-yellow-400"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+                
+                <div className="px-12 pb-12 mt-auto">
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium text-lg mb-6"
+                  >
+                    Sign In
+                  </Button>
+                  
+                  <div className="text-center text-sm text-gray-600">
+                    Already own an Account?{" "}
+                    <Link 
+                      to="/sign-up" 
+                      className="text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
                 </div>
-              </CardContent>
-            </form>
-          </Form>
+              </form>
+            </Form>
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 }

@@ -10,7 +10,7 @@ const SignInPage = () => {
   }
   return (
     <main className="w-screen h-screen overflow-auto bg-accent">
-      <div className="flex flex-col items-center justify-center h-full w-full p-5 sm:p-24">
+      <div className="flex flex-col items-center justify-center h-full w-full ">
         <SignInCard />
       </div>
     </main>
