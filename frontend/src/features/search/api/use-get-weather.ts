@@ -1,4 +1,4 @@
-import { WEATHER_API_KEY } from "@/constants";
+import { GOOGLE_MAPS_API_KEY } from "@/constants.ts";
 import { useQuery } from "@tanstack/react-query";
 
 type useGetWeatherProps = {
@@ -12,7 +12,7 @@ const useGetWeather = ({ lat, lng, enabled }: useGetWeatherProps) => {
     queryKey: ["weather", lat, lng],
     queryFn: async () => {
       try {
-        const url = `https://weather.googleapis.com/v1/forecast/hours:lookup?key=${WEATHER_API_KEY}&location.latitude=${lat}&location.longitude=${lng}`;
+        const url = `https://weather.googleapis.com/v1/forecast/hours:lookup?key=${GOOGLE_MAPS_API_KEY}&location.latitude=${lat}&location.longitude=${lng}`;
         const res = await fetch(url);
         const data = await res.json();
         return data;
