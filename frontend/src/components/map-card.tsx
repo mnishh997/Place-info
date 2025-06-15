@@ -16,7 +16,7 @@ const placeTypes = [
   { label: "EV Charging Station", value: "ev_charging_station" },
 ];
 
-export const MapCard = () => {
+export const MapCard = ({ className }: { className?: string }) => {
   const map = useMap();
   const [selectedPlaceType, setSelectedPlaceType] = useState("");
   const [places, setPlaces] = useState([]);
@@ -513,71 +513,76 @@ export const MapCard = () => {
   };
 
   return (
-    <div className="flex bg-background border rounded-xl p-4 shadow items-stretch">
-      <div className="bg-fuchsia-300 px-8 py-8 rounded-l-lg">
-        <RadioGroup onValueChange={(e) => setSelectedPlaceType(e)}>
-          {placeTypes.map((item, index) => {
-            return (
-              <div key={index} className="flex items-center gap-3">
-                <RadioGroupItem
-                  value={item.value}
-                  id={`place-type-${item.label}-${index}`}
-                />
-                <Label htmlFor={`place-type-${item.label}-${index}`}>
-                  {item.label}
-                </Label>
-              </div>
-            );
-          })}
-        </RadioGroup>
-      </div>
+    <div className={className}>
+      <div className="flex bg-background border rounded-xl p-4 shadow items-stretch">
+        <div className="bg-primary px-8 py-8 rounded-l-lg grow">
+          <RadioGroup
+            onValueChange={(e) => setSelectedPlaceType(e)}
+            className="text-primary-foreground"
+          >
+            {placeTypes.map((item, index) => {
+              return (
+                <div key={index} className="flex items-center gap-3">
+                  <RadioGroupItem
+                    value={item.value}
+                    id={`place-type-${item.label}-${index}`}
+                  />
+                  <Label htmlFor={`place-type-${item.label}-${index}`}>
+                    {item.label}
+                  </Label>
+                </div>
+              );
+            })}
+          </RadioGroup>
+        </div>
 
-      <div style={{ flexGrow: 1 }}>
-        <Map
-          defaultCenter={{ lat: -37.8136, lng: 144.9631 }} // Melbourne
-          defaultZoom={14}
-          gestureHandling={"greedy"}
-          disableDefaultUI={false}
-          className="w-96 h-96"
-          reuseMaps={true}
-          mapId={"YOUR_MAP_ID"} // Essential for Advanced Markers
-        >
-          {places.map((place: any) => (
-            <AdvancedMarker
-              key={place.id}
-              position={{
-                lat: place.location.latitude,
-                lng: place.location.longitude,
-              }}
-              title={place.displayName?.text}
-              clickable
-              onClick={() => handleMarkerClick(place)} // Attach click handler
-            >
-              <Pin
-                background={"#FBBC04"}
-                glyphColor={"#000"}
-                borderColor={"#000"}
-              >
-                {selectedPlaceType ? selectedPlaceType[0].toUpperCase() : "P"}
-              </Pin>
-            </AdvancedMarker>
-          ))}
-
-          {/* InfoWindow conditionally rendered */}
-          {infoWindowOpen &&
-            selectedPlaceForInfoWindow &&
-            infoWindowPlaceDetails && (
-              <InfoWindow
+        <div>
+          <Map
+            defaultCenter={{ lat: -37.8136, lng: 144.9631 }} // Melbourne
+            defaultZoom={14}
+            gestureHandling={"greedy"}
+            disableDefaultUI={false}
+            className="w-96 h-96"
+            reuseMaps={true}
+            mapId={"YOUR_MAP_ID"} // Essential for Advanced Markers
+          >
+            {places.map((place: any) => (
+              <AdvancedMarker
+                key={place.id}
                 position={{
-                  lat: selectedPlaceForInfoWindow.location.latitude,
-                  lng: selectedPlaceForInfoWindow.location.longitude,
+                  lat: place.location.latitude,
+                  lng: place.location.longitude,
                 }}
-                onCloseClick={() => setInfoWindowOpen(false)}
+                title={place.displayName?.text}
+                clickable
+                onClick={() => handleMarkerClick(place)} // Attach click handler
               >
-                {renderInfoWindowContent()}
-              </InfoWindow>
-            )}
-        </Map>
+                <Pin
+                  background={"#FBBC04"}
+                  glyphColor={"#000"}
+                  borderColor={"#000"}
+                >
+                  {selectedPlaceType ? selectedPlaceType[0].toUpperCase() : "P"}
+                </Pin>
+              </AdvancedMarker>
+            ))}
+
+            {/* InfoWindow conditionally rendered */}
+            {infoWindowOpen &&
+              selectedPlaceForInfoWindow &&
+              infoWindowPlaceDetails && (
+                <InfoWindow
+                  position={{
+                    lat: selectedPlaceForInfoWindow.location.latitude,
+                    lng: selectedPlaceForInfoWindow.location.longitude,
+                  }}
+                  onCloseClick={() => setInfoWindowOpen(false)}
+                >
+                  {renderInfoWindowContent()}
+                </InfoWindow>
+              )}
+          </Map>
+        </div>
       </div>
     </div>
   );

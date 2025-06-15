@@ -1,12 +1,16 @@
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Separator } from "./ui/separator";
+import { Skeleton } from "./ui/skeleton";
 
 export default function CurrentConditions({
   data,
   locationName,
+  className,
 }: {
   data: any;
   locationName: string;
+  className?: string;
 }) {
   if (!data) {
     return (
@@ -35,7 +39,7 @@ export default function CurrentConditions({
     : "N/A";
 
   return (
-    <Card className="bg-muted/30 backdrop-blur-2xl">
+    <Card className={cn("backdrop-blur-2xl", className)}>
       <CardHeader className="font-bold text-2xl">{locationName}</CardHeader>
       <div className="px-6">
         <Separator />
@@ -79,3 +83,33 @@ export default function CurrentConditions({
     </Card>
   );
 }
+
+export const CurrentConditionsSkeleton = ({
+  className,
+}: {
+  className: string;
+}) => {
+  return (
+    <Card className={className}>
+      <CardHeader>
+        <Skeleton className="h-8" />
+        <CardContent className="px-0">
+          <div className="flex w-full gap-8">
+            <div className="flex flex-col basis-full gap-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+            <div className="flex flex-col basis-full gap-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          </div>
+        </CardContent>
+      </CardHeader>
+    </Card>
+  );
+};
